@@ -259,8 +259,9 @@ def show_dashboard():
                 with st.spinner("Recolectando artículos..."):
                     try:
                         topics = ["bioinformatics", "computational biology", "machine learning"]
-                        stats = harvester_manager.harvest_articles(topics=topics, max_articles_per_source=5)
-                        st.success(f"✅ Recolectados {stats.get('total_articles', 0)} artículos")
+                        stats = harvester_manager.harvest_all_sources(topics=topics, max_articles_per_source=5)
+                        total_articles = sum(len(articles) for articles in stats.values())
+                        st.success(f"✅ Recolectados {total_articles} artículos")
                         st.rerun()
                     except Exception as e:
                         st.error(f"Error en recolección: {e}")
