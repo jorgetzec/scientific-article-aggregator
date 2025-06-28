@@ -13,6 +13,7 @@ from .post_generator import PostGenerator
 from ..utils.database import db_manager, Article
 from ..utils.logger import app_logger
 from ..utils.config_loader import config_loader
+from ..utils.data_validator import data_validator
 
 
 class ArticleProcessorManager:
@@ -117,6 +118,32 @@ class ArticleProcessorManager:
             'file_saved': False
         }
         
+        # 0. Validar y limpiar datos del artículo
+        try:
+            article_data = {
+                'title': article.title,
+                'abstract': article.abstract,
+                'authors': article.authors,
+                'publication_date': article.publication_date,
+                'url': article.url,
+                'topics': article.topics
+            }
+            
+            cleaned_data = data_validator.validate_and_clean_article(article_data)
+            
+            # Actualizar artículo con datos limpios
+            article.title = cleaned_data.get('title', article.title)
+            article.abstract = cleaned_data.get('abstract', article.abstract)
+            article.authors = cleaned_data.get('authors', article.authors)
+            article.publication_date = cleaned_data.get('publication_date', article.publication_date)
+            article.url = cleaned_data.get('url', article.url)
+            article.topics = cleaned_data.get('topics', article.topics)
+            
+            app_logger.debug(f"Datos validados para artículo {article.id}")
+            
+        except Exception as e:
+            app_logger.warning(f"Error validando datos del artículo {article.id}: {e}")
+        
         # 1. Extraer texto completo si no está disponible
         if not article.full_text and article.url:
             try:
@@ -139,9 +166,14 @@ class ArticleProcessorManager:
                 )
                 
                 if summary:
-                    article.summary = summary
-                    result['summary_generated'] = True
-                    app_logger.debug(f"Resumen generado para {article.id}")
+                    # Validar calidad del resumen
+                    quality = data_validator.validate_text_quality(summary)
+                    if quality['quality_score'] > 50:  # Solo usar resúmenes de buena calidad
+                        article.summary = summary
+                        result['summary_generated'] = True
+                        app_logger.debug(f"Resumen generado para {article.id}")
+                    else:
+                        app_logger.warning(f"Resumen de baja calidad para {article.id}: {quality['issues']}")
             except Exception as e:
                 app_logger.error(f"Error generando resumen para {article.id}: {e}")
         else:
@@ -153,9 +185,14 @@ class ArticleProcessorManager:
                 post = self.post_generator.generate_post(article, article.summary)
                 
                 if post:
-                    article.post_content = post
-                    result['post_generated'] = True
-                    app_logger.debug(f"Post generado para {article.id}")
+                    # Validar calidad del post
+                    quality = data_validator.validate_text_quality(post)
+                    if quality['quality_score'] > 60:  # Posts deben tener mejor calidad
+                        article.post_content = post
+                        result['post_generated'] = True
+                        app_logger.debug(f"Post generado para {article.id}")
+                    else:
+                        app_logger.warning(f"Post de baja calidad para {article.id}: {quality['issues']}")
             except Exception as e:
                 app_logger.error(f"Error generando post para {article.id}: {e}")
         elif article.post_content:
