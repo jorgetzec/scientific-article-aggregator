@@ -50,7 +50,7 @@ class DailyScheduler:
         try:
             # 1. Recolectar artículos
             app_logger.info("1. Recolectando artículos...")
-            harvest_stats = harvester_manager.harvest_articles(
+            harvest_stats = harvester_manager.harvest_all_sources(
                 topics=self.default_topics,
                 max_articles_per_source=10
             )
