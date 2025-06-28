@@ -1,0 +1,49 @@
+# Archivo de ejemplo para claves de API
+# Copia este archivo a api_keys.yaml y completa con tus claves reales
+
+# The Lens API
+lens:
+  api_key: "tu_clave_api_lens_aqui"
+  base_url: "https://api.lens.org"
+
+# IEEE Xplore API
+ieee:
+  api_key: "tu_clave_api_ieee_aqui"
+  base_url: "https://ieeexploreapi.ieee.org"
+
+# arXiv API (no requiere clave)
+arxiv:
+  base_url: "http://export.arxiv.org/api/query"
+  max_results: 100
+
+# Europe PMC API (no requiere clave para búsquedas básicas)
+europepmc:
+  base_url: "https://www.ebi.ac.uk/europepmc/webservices/rest"
+  email: "tu_email@ejemplo.com"  # Recomendado para identificación
+
+# DOAJ API (no requiere clave)
+doaj:
+  base_url: "https://doaj.org/api/v2"
+
+# bioRxiv/medRxiv API (no requiere clave)
+biorxiv:
+  base_url: "https://api.biorxiv.org"
+  
+medrxiv:
+  base_url: "https://api.medrxiv.org"
+
+# Crossref API (no requiere clave para búsquedas básicas)
+crossref:
+  base_url: "https://api.crossref.org"
+  mailto: "tu_email@ejemplo.com"  # Recomendado para acceso prioritario
+
+# Configuración adicional
+rate_limits:
+  lens: 10  # requests per minute
+  ieee: 200  # requests per day
+  arxiv: 3  # requests per second
+  europepmc: 10  # requests per second
+  doaj: 30  # requests per minute
+  biorxiv: 100  # requests per hour
+  crossref: 50  # requests per second
+

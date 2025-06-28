@@ -1,0 +1,37 @@
+# Configuración de APIs para pruebas (usando APIs públicas sin claves)
+
+# arXiv API (no requiere clave)
+arxiv:
+  base_url: "http://export.arxiv.org/api/query"
+  max_results: 100
+
+# Europe PMC API (no requiere clave para búsquedas básicas)
+europepmc:
+  base_url: "https://www.ebi.ac.uk/europepmc/webservices/rest"
+  email: "test@example.com"
+
+# DOAJ API (no requiere clave)
+doaj:
+  base_url: "https://doaj.org/api/v2"
+
+# bioRxiv API (no requiere clave)
+biorxiv:
+  base_url: "https://api.biorxiv.org"
+  
+# medRxiv API (no requiere clave)
+medrxiv:
+  base_url: "https://api.medrxiv.org"
+
+# Crossref API (no requiere clave para búsquedas básicas)
+crossref:
+  base_url: "https://api.crossref.org"
+  mailto: "test@example.com"
+
+# Configuración de límites de velocidad
+rate_limits:
+  arxiv: 3  # requests per second
+  europepmc: 10  # requests per second
+  doaj: 30  # requests per minute
+  biorxiv: 100  # requests per hour
+  crossref: 50  # requests per second
+
