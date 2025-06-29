@@ -422,7 +422,7 @@ def main():
                     all_articles = db_manager.get_recent_articles(days=365, limit=1000)
                     total_found = len(all_articles)  # Total de artículos encontrados
                     saved_articles = len([a for a in all_articles if hasattr(a, 'saved') and a.saved])
-        except Exception as e:
+                except Exception as e:
                     st.error(f"Error obteniendo artículos totales: {e}")
                     total_found = 0
                     saved_articles = 0
@@ -437,12 +437,12 @@ def main():
                 
                 # Métricas en el sidebar
                 col1, col2 = st.columns(2)
-        
-        with col1:
+                
+                with col1:
                     st.metric("Total Encontrados", total_found)
                     st.metric("Guardados", saved_articles)
-        
-        with col2:
+                
+                with col2:
                     st.metric("Nuevos (7 días)", recent_saved)
                     if total_found > 0:
                         save_rate = (saved_articles / total_found) * 100
@@ -507,7 +507,7 @@ def main():
                             st.session_state.rss_feeds.append(new_rss)
                             st.success("✅ RSS agregado")
                             st.rerun()
-        else:
+                        else:
                             st.error("❌ URL de RSS inválida")
                     elif new_rss in st.session_state.rss_feeds:
                         st.warning("⚠️ Este RSS ya está en la lista")
@@ -528,7 +528,7 @@ def main():
         
         if not st.session_state.show_clear_confirm:
             col1, col2 = st.columns(2)
-        with col1:
+            with col1:
                 if st.button("Limpiar Base de Datos", key="clear_db", use_container_width=True):
                     st.session_state.show_clear_confirm = True
                     st.rerun()
@@ -541,8 +541,8 @@ def main():
                                 st.success(f"✅ {corrected_count} fechas inválidas corregidas")
                             else:
                                 st.info("✅ No se encontraron fechas inválidas")
-                        st.rerun()
-                    except Exception as e:
+                            st.rerun()
+                        except Exception as e:
                             st.error(f"Error limpiando fechas: {e}")
         else:
             st.warning("⚠️ ¿Estás seguro de que quieres limpiar completamente la base de datos? Esta acción no se puede deshacer.")
@@ -557,8 +557,8 @@ def main():
                             else:
                                 st.error("Error al limpiar la base de datos")
                             st.session_state.show_clear_confirm = False
-                        st.rerun()
-                    except Exception as e:
+                            st.rerun()
+                        except Exception as e:
                             st.error(f"Error limpiando base de datos: {e}")
                             st.session_state.show_clear_confirm = False
             with col2:
@@ -610,7 +610,7 @@ def perform_search(keywords_input, max_articles):
                     if rss_articles:
                         stats[f"rss_{i}"] = rss_articles
                         st.info(f"📡 RSS {i+1}: {len(rss_articles)} artículos encontrados")
-                    except Exception as e:
+                except Exception as e:
                     st.warning(f"Error con RSS {i+1}: {e}")
         
         total_found = sum(len(articles) for articles in stats.values())
@@ -891,7 +891,7 @@ def show_export_articles():
         st.markdown(f"### Seleccionar Artículos para Exportar ({len(saved_articles)} disponibles)")
         
         # Filtros para selección
-    col1, col2 = st.columns(2)
+        col1, col2 = st.columns(2)
         with col1:
             source_filter = st.selectbox("Filtrar por fuente:", ["Todas"] + list(set([a.source for a in saved_articles])), key="export_source")
         with col2:
@@ -1009,7 +1009,7 @@ def show_search_result_card(article, index):
         
         # Botón de guardar/desguardar
         col1, col2 = st.columns([1, 3])
-    with col1:
+        with col1:
             if is_saved:
                 if st.button("💾 Quitar de Guardados", key=f"unsave_{index}"):
                     try:

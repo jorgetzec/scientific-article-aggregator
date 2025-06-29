@@ -7,7 +7,8 @@ requests>=2.27.0
 pyyaml>=6.0
 beautifulsoup4>=4.11.0
 lxml>=4.9.0
-googletrans==4.0.0rc1
+# googletrans==4.0.0rc1  # Reemplazado por deep-translator
+deep-translator>=1.11.0
 feedparser>=6.0.0
 
 # Optional: Uncomment if using advanced features
