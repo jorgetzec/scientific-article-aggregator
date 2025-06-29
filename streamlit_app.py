@@ -95,12 +95,22 @@ st.set_page_config(
     page_title="Scientific Article Aggregator",
     page_icon="",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
+    menu_items={
+        'Get Help': None,
+        'Report a bug': None,
+        'About': None
+    }
 )
 
-# CSS personalizado para estilo Medium
+# Configurar tema explícitamente para consistencia
 st.markdown("""
 <style>
+    /* Configuración de tema base */
+    .stApp {
+        background-color: #ffffff;
+    }
+    
     /* Tipografía global */
     * {
         font-family: 'Roboto', 'Segoe UI', 'Arial', sans-serif !important;
