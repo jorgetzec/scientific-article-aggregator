@@ -7,8 +7,8 @@ import sys
 import os
 from pathlib import Path
 
-# Agregar el directorio del proyecto al path
-project_root = Path(__file__).parent
+# Agregar el directorio del proyecto al path (tests/ -> ..)
+project_root = Path(__file__).parent.parent  # Subir un nivel desde tests/ a la raíz
 sys.path.insert(0, str(project_root))
 sys.path.insert(0, str(project_root / "src"))
 
