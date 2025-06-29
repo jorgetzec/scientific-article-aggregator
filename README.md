@@ -1,15 +1,15 @@
 # 🔬 Scientific Article Aggregator
 
-Una aplicación web moderna que automatiza la recolección, procesamiento y visualización de artículos científicos de múltiples bases de datos, generando resúmenes accesibles y posts divulgativos al estilo Medium.
+Una aplicación web moderna para buscar, guardar y visualizar artículos científicos de múltiples bases de datos, con exploración por palabras clave, integración de feeds RSS, visualización en tarjetas, panel de detalles, y grafo de conocimiento de artículos guardados. Pensada para facilitar la exploración y organización de literatura científica de forma sencilla y visual.
 
 ## ✨ Características
 
-- **🔍 Recolección Automatizada**: Escanea múltiples bases de datos científicas (arXiv, Europe PMC, Crossref, bioRxiv/medRxiv)
-- **📝 Procesamiento Inteligente**: Genera resúmenes sin tecnicismos y posts divulgativos
-- **🕸️ Knowledge Graph**: Visualiza relaciones entre artículos por temas, autores y fuentes
-- **🎨 Interfaz Moderna**: Diseño minimalista al estilo Medium con Streamlit
-- **⚡ Automatización**: Ejecución diaria programada para mantenerse actualizado
-- **💾 Exportación**: Guarda contenido en formato Markdown
+- **🔍 Búsqueda avanzada**: Busca artículos en arXiv, Europe PMC, Crossref, bioRxiv/medRxiv y RSS personalizados
+- **🗂️ Guardado de artículos**: Marca y organiza artículos de interés
+- **🕸️ Grafo de conocimiento**: Visualiza relaciones entre artículos guardados por temas, autores y fuentes
+- **🎨 Interfaz moderna**: Diseño minimalista tipo Medium con Streamlit
+- **📥 Exportación**: Descarga artículos guardados en formato Markdown, JSON o CSV
+- **⚡ Automatización**: Ejecución diaria programada (opcional)
 
 ## 🚀 Despliegue en Streamlit Cloud
 
@@ -81,67 +81,36 @@ pip install -r requirements.txt
 streamlit run streamlit_app.py
 ```
 
-## 📖 Uso
+## 📖 Navegación y Uso
 
-### Interfaz Web
+### Páginas principales
 
-1. **Dashboard**: Vista general con métricas y artículos recientes
-2. **Artículos**: Explorar y filtrar artículos recolectados
-3. **Explorar**: Visualizar el knowledge graph de relaciones
-4. **Configuración**: Personalizar temas y fuentes
-5. **Analytics**: Estadísticas y tendencias
+1. **Buscar artículos**: Ingresa palabras clave, selecciona fuentes y explora resultados en tarjetas. Haz clic en una tarjeta para ver detalles y guardar artículos de interés.
+2. **Artículos guardados**: Visualiza, elimina y exporta tus artículos favoritos.
+3. **Grafo de conocimiento**: Explora visualmente las relaciones entre los artículos guardados por temas, autores y fuentes.
+4. **Configuración**: Gestiona feeds RSS, temas de interés y preferencias de la app.
 
-### Funciones Principales
+### Funciones principales
 
-- **Recolectar Artículos**: Busca nuevos artículos en las bases de datos configuradas
-- **Procesar Artículos**: Genera resúmenes y posts divulgativos
-- **Actualizar Grafo**: Reconstruye el knowledge graph con nuevas relaciones
-- **Exportar Contenido**: Descarga posts en formato Markdown
+- **Buscar y filtrar artículos** por palabras clave y fuente
+- **Agregar feeds RSS** personalizados
+- **Guardar y eliminar artículos** de interés
+- **Ver detalles completos** (abstract traducido, autores, fuente, fecha, DOI, URL)
+- **Exportar artículos guardados** en Markdown, JSON o CSV
+- **Visualizar el grafo de conocimiento** de tus artículos
 
 ## 🔧 Configuración
 
-### Temas de Interés
-
-Personaliza los temas en la sección de Configuración:
-- Bioinformática
-- Programación en biología
-- Análisis de datos biológicos
-- Interacción planta-microorganismos
-- Educación científica
-- Investigación en divulgación
-
-### Fuentes de Datos
-
-- **arXiv**: Artículos de preprint en ciencias
-- **Europe PMC**: Base de datos biomédica europea
-- **Crossref**: Metadatos de publicaciones académicas
-- **bioRxiv/medRxiv**: Preprints en biología y medicina
-
-## 📁 Estructura del Proyecto
-
-```
-scientific-article-aggregator/
-├── streamlit_app.py              # Aplicación principal
-├── requirements.txt              # Dependencias
-├── .streamlit/config.toml       # Configuración de Streamlit
-├── src/                         # Código fuente
-│   ├── data_harvester/          # Recolección de datos
-│   ├── article_processor/       # Procesamiento de artículos
-│   ├── knowledge_graph/         # Grafo de conocimiento
-│   ├── scheduler/               # Automatización
-│   └── utils/                   # Utilidades
-├── config/                      # Archivos de configuración
-├── data/                        # Base de datos SQLite
-├── outputs/                     # Posts generados
-└── tests/                       # Pruebas
-```
+- Personaliza temas y fuentes en la sección de Configuración
+- Agrega tus propios feeds RSS
+- Configura claves API en `config/api_keys.yaml` si es necesario
 
 ## 🤝 Contribuir
 
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
+1. Haz fork del proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/NuevaFeature`)
+3. Commit a tus cambios (`git commit -m 'Agrega NuevaFeature'`)
+4. Push a la rama (`git push origin feature/NuevaFeature`)
 5. Abre un Pull Request
 
 ## 📄 Licencia
@@ -150,12 +119,9 @@ Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más detalles.
 
 ## 🆘 Soporte
 
-Si tienes problemas con el despliegue:
-
-1. **Verifica los logs** en Streamlit Cloud
-2. **Revisa requirements.txt** - asegúrate de que todas las dependencias estén listadas
-3. **Comprueba la estructura** - `streamlit_app.py` debe estar en la raíz
-4. **Consulta la documentación** de [Streamlit Cloud](https://docs.streamlit.io/streamlit-cloud)
+- Verifica los logs en la carpeta `logs/` o en Streamlit Cloud
+- Revisa `requirements.txt` y la estructura del proyecto
+- Consulta la documentación de [Streamlit](https://docs.streamlit.io/)
 
 ## 🌟 Características Futuras
 
@@ -169,4 +135,29 @@ Si tienes problemas con el despliegue:
 ---
 
 **Desarrollado con ❤️ para la comunidad científica**
+
+## 📁 Estructura del Proyecto
+
+```
+scientific-article-aggregator-complete/
+├── streamlit_app.py              # Aplicación principal Streamlit
+├── requirements.txt              # Dependencias
+├── .streamlit/
+│   └── config.toml               # Configuración de Streamlit
+├── src/                          # Código fuente
+│   ├── data_harvester/           # Recolección de datos (APIs, RSS)
+│   ├── article_processor/        # Utilidades de texto y limpieza
+│   ├── knowledge_graph/          # Grafo de conocimiento
+│   ├── scheduler/                # Automatización (opcional)
+│   └── utils/                    # Utilidades generales y base de datos
+├── config/                       # Archivos de configuración y claves
+├── data/                         # Base de datos SQLite
+│   └── articles.db
+├── outputs/                      # Exportaciones y posts generados
+├── tests/                        # Pruebas unitarias y de integración
+│   ├── test_harvesters.py
+│   └── test_processor.py
+├── logs/                         # (opcional) Archivos de log de la app
+└── README.md
+```
 

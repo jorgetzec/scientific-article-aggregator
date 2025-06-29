@@ -1,0 +1,1 @@
+print("❌ No hay artículos en la base de datos. Ejecuta primero tests/test_harvesters.py") 
