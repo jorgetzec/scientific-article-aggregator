@@ -94,18 +94,9 @@ class HarvesterManager:
         else:
             results = self._harvest_sequential(active_harvesters, topics, date_range_days, max_articles_per_source)
         
-        # Guardar artículos en la base de datos
-        total_saved = 0
-        for source, articles in results.items():
-            saved_count = 0
-            for article in articles:
-                if db_manager.save_article(article):
-                    saved_count += 1
-            
-            app_logger.info(f"Guardados {saved_count}/{len(articles)} artículos de {source}")
-            total_saved += saved_count
-        
-        app_logger.info(f"Recolección completada: {total_saved} artículos guardados en total")
+        # No guardar automáticamente - solo retornar los resultados
+        total_found = sum(len(articles) for articles in results.values())
+        app_logger.info(f"Recolección completada: {total_found} artículos encontrados")
         return results
     
     def _harvest_parallel(self, harvesters: Dict[str, Any], 

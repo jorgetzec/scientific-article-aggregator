@@ -33,8 +33,16 @@ class PostGenerator:
         """
         app_logger.info(f"Generando post para: {article.title[:50]}...")
         
+        # Guardar el artículo como atributo para acceso en otros métodos
+        self.article = article
+        
         # Extraer información estructurada del artículo
         structured_info = self._extract_article_information(article, summary)
+        
+        # Verificar que tenemos suficiente información
+        if not self._has_sufficient_content(structured_info, article):
+            app_logger.warning(f"Contenido insuficiente para generar post para: {article.title}")
+            return self._generate_minimal_post(article)
         
         # Estructura del post
         post_sections = []
@@ -43,32 +51,32 @@ class PostGenerator:
         title = self._create_professional_title(article.title, structured_info)
         post_sections.append(f"# {title}\n")
         
-        # 2. Introducción
-        introduction = self._create_introduction(structured_info)
+        # 2. Introducción específica
+        introduction = self._create_introduction(structured_info, article)
         post_sections.append(f"{introduction}\n")
         
-        # 3. Contexto y problema
+        # 3. Contexto y problema específico
         if structured_info['problem']:
-            context = self._create_context_section(structured_info)
+            context = self._create_specific_context_section(structured_info, article)
             post_sections.append(f"## Contexto y Desafío\n\n{context}\n")
         
-        # 4. Metodología
+        # 4. Metodología específica
         if structured_info['methodology']:
-            methodology = self._create_methodology_section(structured_info)
+            methodology = self._create_specific_methodology_section(structured_info, article)
             post_sections.append(f"## Metodología\n\n{methodology}\n")
         
-        # 5. Resultados principales
+        # 5. Resultados específicos
         if structured_info['findings']:
-            results = self._create_results_section(structured_info)
+            results = self._create_specific_results_section(structured_info, article)
             post_sections.append(f"## Resultados Principales\n\n{results}\n")
         
-        # 6. Implicaciones
-        implications = self._create_implications_section(structured_info, article)
+        # 6. Implicaciones específicas
+        implications = self._create_specific_implications_section(structured_info, article)
         if implications:
             post_sections.append(f"## Implicaciones\n\n{implications}\n")
         
-        # 7. Conclusión
-        conclusion = self._create_conclusion_section(structured_info)
+        # 7. Conclusión específica
+        conclusion = self._create_specific_conclusion_section(structured_info, article)
         post_sections.append(f"## Conclusión\n\n{conclusion}\n")
         
         # 8. Referencias
@@ -84,6 +92,43 @@ class PostGenerator:
         
         app_logger.info(f"Post generado ({len(full_post.split())} palabras)")
         return full_post
+    
+    def _has_sufficient_content(self, structured_info: Dict[str, str], article: Article) -> bool:
+        """Verifica si hay suficiente contenido para generar un post útil."""
+        # Verificar que tenemos al menos título y abstract
+        if not article.title or not article.abstract:
+            return False
+        
+        # Verificar que tenemos al menos algunos hallazgos o metodología
+        has_findings = bool(structured_info.get('findings', '').strip())
+        has_methodology = bool(structured_info.get('methodology', '').strip())
+        has_problem = bool(structured_info.get('problem', '').strip())
+        
+        return has_findings or has_methodology or has_problem
+    
+    def _generate_minimal_post(self, article: Article) -> str:
+        """Genera un post mínimo cuando no hay suficiente contenido."""
+        post_parts = [
+            f"# {article.title}",
+            "",
+            "## Resumen",
+            "",
+            article.abstract or "Resumen no disponible",
+            "",
+            "## Información del Artículo",
+            "",
+            f"**Autores**: {', '.join(article.authors) if article.authors else 'No especificados'}",
+            f"**Fuente**: {article.source}",
+            f"**Fecha**: {article.publication_date.strftime('%B %Y') if article.publication_date else 'No especificada'}",
+            "",
+            "**Nota**: Este artículo requiere procesamiento adicional para generar un análisis más detallado.",
+            "",
+            "---",
+            "",
+            self._create_references_section(article)
+        ]
+        
+        return '\n'.join(post_parts)
     
     def _extract_article_information(self, article: Article, summary: str = None) -> Dict[str, str]:
         """
@@ -194,52 +239,108 @@ class PostGenerator:
         else:
             return f"Investigación Científica: {simplified}"
     
-    def _create_introduction(self, structured_info: Dict[str, str]) -> str:
-        """Crea una introducción profesional."""
+    def _create_introduction(self, structured_info: Dict[str, str], article: Article) -> str:
+        """Crea una introducción específica basada en el contenido real."""
+        introduction_parts = []
+        
+        # Usar el título para contextualizar
+        if article.title:
+            title_keywords = self._extract_keywords_from_title(article.title)
+            if title_keywords:
+                introduction_parts.append(f"La investigación titulada \"{article.title}\" aborda aspectos fundamentales de {', '.join(title_keywords[:2])}.")
+        
+        # Usar el problema identificado
+        if structured_info.get('problem'):
+            problem = structured_info['problem']
+            introduction_parts.append(f"El estudio se centra en {problem.lower()}")
+        
+        # Usar los hallazgos principales
         if structured_info.get('findings'):
-            return f"Un nuevo estudio ha revelado hallazgos significativos en el campo de la investigación científica. Los resultados obtenidos muestran {structured_info['findings'].lower()}, lo que representa un avance importante en nuestra comprensión del tema."
+            findings = structured_info['findings']
+            introduction_parts.append(f"Los resultados obtenidos revelan que {findings.lower()}")
+        
+        # Si no tenemos información específica, usar el abstract
+        if not introduction_parts and article.abstract:
+            abstract_start = article.abstract[:200] + "..." if len(article.abstract) > 200 else article.abstract
+            introduction_parts.append(abstract_start)
+        
+        if introduction_parts:
+            return " ".join(introduction_parts)
         else:
-            return "Una investigación reciente ha abordado un desafío importante en el ámbito científico, proporcionando nuevas perspectivas y metodologías que podrían tener implicaciones significativas para el campo."
+            return "Esta investigación científica presenta hallazgos relevantes en su campo de estudio."
     
-    def _create_context_section(self, structured_info: Dict[str, str]) -> str:
-        """Crea la sección de contexto y problema."""
-        problem = structured_info.get('problem', '')
-        if problem:
-            return f"El estudio aborda {problem.lower()} Esta investigación es particularmente relevante porque aborda una necesidad crítica en el campo y proporciona una base sólida para futuros desarrollos."
+    def _create_specific_context_section(self, structured_info: Dict[str, str], article: Article) -> str:
+        """Crea la sección de contexto específica."""
+        context_parts = []
+        
+        if structured_info.get('problem'):
+            problem = structured_info['problem']
+            context_parts.append(f"El estudio aborda {problem.lower()}")
+            
+            # Agregar contexto adicional basado en el área de investigación
+            research_area = structured_info.get('research_area', 'general')
+            if research_area == 'bioinformatics':
+                context_parts.append("Esta investigación es particularmente relevante en el contexto actual de la bioinformática, donde la necesidad de herramientas computacionales eficientes para el análisis de datos biológicos es cada vez más crítica.")
+            elif research_area == 'ai_ml':
+                context_parts.append("En el campo de la inteligencia artificial y el aprendizaje automático, este tipo de investigación contribuye al desarrollo de algoritmos más eficientes y precisos.")
+            elif research_area == 'plant_microbe':
+                context_parts.append("La comprensión de las interacciones entre plantas y microorganismos es fundamental para el desarrollo de estrategias agrícolas sostenibles.")
+        
+        # Si no tenemos problema específico, usar el abstract
+        if not context_parts and article.abstract:
+            abstract_sentences = article.abstract.split('.')
+            if len(abstract_sentences) > 1:
+                context_parts.append(abstract_sentences[0] + ".")
+        
+        if context_parts:
+            return " ".join(context_parts)
         else:
-            return "La investigación se centra en un área de creciente importancia científica, donde los avances tecnológicos y metodológicos están abriendo nuevas posibilidades de estudio y aplicación."
+            return "La investigación se centra en un área de creciente importancia científica, abordando desafíos metodológicos y conceptuales relevantes para el campo."
     
-    def _create_methodology_section(self, structured_info: Dict[str, str]) -> str:
-        """Crea la sección de metodología."""
-        methodology = structured_info.get('methodology', '')
-        if methodology:
-            return f"Los investigadores emplearon {methodology.lower()} Esta metodología fue seleccionada por su capacidad para proporcionar resultados confiables y reproducibles, asegurando la validez científica de los hallazgos."
+    def _create_specific_methodology_section(self, structured_info: Dict[str, str], article: Article) -> str:
+        """Crea la sección de metodología específica."""
+        if structured_info.get('methodology'):
+            methodology = structured_info['methodology']
+            return f"Los investigadores emplearon {methodology.lower()} Esta metodología fue seleccionada por su capacidad para abordar específicamente los objetivos del estudio y proporcionar resultados confiables."
+        
+        # Si no tenemos metodología específica, intentar extraer del abstract
+        if article.abstract:
+            methodology_keywords = self._extract_methodology_keywords(article.abstract)
+            if methodology_keywords:
+                return f"La metodología utilizada incluye {', '.join(methodology_keywords)}. Este enfoque metodológico permite una evaluación comprehensiva de los datos y resultados obtenidos."
+        
+        return "La metodología utilizada en este estudio combina técnicas establecidas con enfoques innovadores, permitiendo una evaluación comprehensiva de los datos y resultados obtenidos."
+    
+    def _create_specific_results_section(self, structured_info: Dict[str, str], article: Article) -> str:
+        """Crea la sección de resultados específica."""
+        results_parts = []
+        
+        if structured_info.get('findings'):
+            findings = structured_info['findings']
+            results_parts.append(f"Los resultados principales del estudio indican que {findings.lower()}")
+        
+        if structured_info.get('key_metrics'):
+            metrics = structured_info['key_metrics']
+            results_parts.append(f"\n\nEntre los hallazgos más destacados se encuentran:\n{metrics}")
+        
+        # Si no tenemos hallazgos específicos, intentar extraer del abstract
+        if not results_parts and article.abstract:
+            results_keywords = self._extract_results_keywords(article.abstract)
+            if results_keywords:
+                results_parts.append(f"Los resultados obtenidos muestran {', '.join(results_keywords)}.")
+        
+        if results_parts:
+            return " ".join(results_parts)
         else:
-            return "La metodología utilizada en este estudio combina técnicas establecidas con enfoques innovadores, permitiendo una evaluación comprehensiva de los datos y resultados obtenidos."
+            return "Los resultados obtenidos muestran patrones consistentes y estadísticamente significativos, confirmando la validez de las hipótesis planteadas."
     
-    def _create_results_section(self, structured_info: Dict[str, str]) -> str:
-        """Crea la sección de resultados."""
-        findings = structured_info.get('findings', '')
-        metrics = structured_info.get('key_metrics', '')
-        
-        results_text = ""
-        if findings:
-            results_text += f"Los resultados principales del estudio indican que {findings.lower()}"
-        
-        if metrics:
-            results_text += f"\n\nEntre los hallazgos más destacados se encuentran:\n{metrics}"
-        
-        if not results_text:
-            results_text = "Los resultados obtenidos muestran patrones consistentes y estadísticamente significativos, confirmando la validez de las hipótesis planteadas y proporcionando evidencia sólida para las conclusiones del estudio."
-        
-        return results_text
-    
-    def _create_implications_section(self, structured_info: Dict[str, str], article: Article) -> str:
-        """Crea la sección de implicaciones."""
+    def _create_specific_implications_section(self, structured_info: Dict[str, str], article: Article) -> str:
+        """Crea la sección de implicaciones específica."""
         implications = []
         
         if structured_info.get('findings'):
-            implications.append(f"Los hallazgos de esta investigación tienen implicaciones directas para el campo, ya que {structured_info['findings'].lower()}")
+            findings = structured_info['findings']
+            implications.append(f"Los hallazgos de esta investigación tienen implicaciones directas para el campo, ya que {findings.lower()}")
         
         if structured_info.get('methodology'):
             implications.append("La metodología desarrollada en este estudio puede ser aplicada a problemas similares en otras áreas de investigación, ampliando su impacto y utilidad.")
@@ -256,12 +357,13 @@ class PostGenerator:
         
         return " ".join(implications)
     
-    def _create_conclusion_section(self, structured_info: Dict[str, str]) -> str:
-        """Crea la sección de conclusión."""
+    def _create_specific_conclusion_section(self, structured_info: Dict[str, str], article: Article) -> str:
+        """Crea la sección de conclusión específica."""
         conclusion_parts = []
         
         if structured_info.get('findings'):
-            conclusion_parts.append(f"Este estudio demuestra que {structured_info['findings'].lower()}")
+            findings = structured_info['findings']
+            conclusion_parts.append(f"Este estudio demuestra que {findings.lower()}")
         
         conclusion_parts.append("Los resultados obtenidos representan un paso importante hacia una mejor comprensión de los fenómenos estudiados y abren nuevas posibilidades para investigaciones futuras.")
         
@@ -274,6 +376,38 @@ class PostGenerator:
             conclusion_parts.append("La metodología y los hallazgos presentados en este estudio tienen el potencial de influir significativamente en el desarrollo del campo y sus aplicaciones prácticas.")
         
         return " ".join(conclusion_parts)
+    
+    def _extract_keywords_from_title(self, title: str) -> List[str]:
+        """Extrae palabras clave del título."""
+        # Remover palabras comunes
+        common_words = {'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should', 'may', 'might', 'must', 'can'}
+        
+        words = re.findall(r'\b[a-zA-Z]+\b', title.lower())
+        keywords = [word for word in words if word not in common_words and len(word) > 3]
+        
+        return keywords[:5]  # Máximo 5 palabras clave
+    
+    def _extract_methodology_keywords(self, text: str) -> List[str]:
+        """Extrae palabras clave relacionadas con metodología."""
+        methodology_terms = ['analysis', 'method', 'approach', 'technique', 'algorithm', 'model', 'framework', 'protocol', 'procedure', 'experiment', 'study', 'investigation', 'evaluation', 'assessment', 'measurement', 'calculation', 'computation', 'simulation']
+        
+        found_terms = []
+        for term in methodology_terms:
+            if term.lower() in text.lower():
+                found_terms.append(term)
+        
+        return found_terms[:3]  # Máximo 3 términos
+    
+    def _extract_results_keywords(self, text: str) -> List[str]:
+        """Extrae palabras clave relacionadas con resultados."""
+        results_terms = ['result', 'finding', 'outcome', 'conclusion', 'discovery', 'observation', 'evidence', 'data', 'statistic', 'percentage', 'improvement', 'increase', 'decrease', 'change', 'difference', 'correlation', 'relationship']
+        
+        found_terms = []
+        for term in results_terms:
+            if term.lower() in text.lower():
+                found_terms.append(term)
+        
+        return found_terms[:3]  # Máximo 3 términos
     
     def _create_references_section(self, article: Article) -> str:
         """Crea la sección de referencias."""
@@ -378,4 +512,4 @@ class PostGenerator:
             else:
                 break
         
-        return '\n\n'.join(trimmed_sections) 
+        return '\n\n'.join(trimmed_sections)

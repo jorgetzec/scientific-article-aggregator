@@ -24,8 +24,7 @@ class DailyScheduler:
             "computational biology", 
             "machine learning",
             "data analysis",
-            "plant microbe interaction",
-            "scientific education"
+            "plant microbe interaction"
         ]
         self.is_running = False
     
